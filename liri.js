@@ -1,12 +1,12 @@
 //---------------------------------------------------GLOBAL VARIABLES--------------------------------------------------------//
 
 // require files and variables to store key info
-
 require("dotenv").config();
 var fs = require("fs");
 var keys = require("./keys.js");
 var Spotify = require('node-spotify-api');
 var spotify = new Spotify(keys.spotify);
+var moment = require('moment');
 var axios = require("axios");
 var NodeGeocoder = require("node-geocoder");
 var options = {
@@ -45,6 +45,8 @@ var spotifyFn = function (searchTerm) {
             }
             //consolidate location of information
             var res = data.tracks.items;
+
+            //Default result if no song is given, The sign by ace of base
             if (!procArr[3]) {
                 var artists = res[2].artists.map(function (artist) {
                     return artist.name
@@ -95,19 +97,19 @@ var spotifyFn = function (searchTerm) {
 }
 
 //------------------------------------------------BANDS IN TOWN SEARCH (USING GEOCODER FOR EXACT ADDRESS)-------------------------------------------//
+
 // Use of Bands in Town API to execute Bands in Town Artist Events case command
 var bandsInTownFn = function (searchTerm) {
     var queryURL = "https://rest.bandsintown.com/artists/" + searchTerm + "/events?app_id=codingbootcamp"
     axios.get(queryURL).then(
         function (response) {
-            console.log(response);
+            
             var r = response.data[0];
-            var date = r.datetime;
-            var dateArr = date.split('T', 1).toString().split("-");
-            var dateFormatted = dateArr[1] + "/" + dateArr[2] + "/" + dateArr[0];
+            //variables to take in date and make it into desired format
+            var date = moment(r.datetime);
+           
+
             var venue = r.venue.name;
-            // var city = r.venue.city;
-            // var state = r.venue.region;
 
             //To get address use reverse geocode and get longitude and latitude from bands in town response
             // store longitude and latitude in variables
@@ -118,7 +120,6 @@ var bandsInTownFn = function (searchTerm) {
                 lat: latitude,
                 lon: longitude
             }, function (err, res) {
-            
                 location = res[0].formattedAddress;
                 console.log(`
 
@@ -156,15 +157,36 @@ _________________VENUE NAME: ${r.venue.name}
 _________________________________________________________________________________________
 _________________VENUE LOCATION: ${location}
 _________________________________________________________________________________________
-_________________DATE OF EVENT: ${dateFormatted}
+_________________DATE OF EVENT: ${date}
 _________________________________________________________________________________________
 
 `)
             })
-        })
+        }).catch(function (error) {
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                console.log("---------------Data---------------");
+                console.log(error.response.data);
+                console.log("---------------Status---------------");
+                console.log(error.response.status);
+                console.log("---------------Status---------------");
+                console.log(error.response.headers);
+            } else if (error.request) {
+                // The request was made but no response was received
+                // `error.request` is an object that comes back with details pertaining to the error that occurred.
+                console.log(error.request);
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.log("Error", error.message);
+            }
+            console.log(error.config);
+        });
+        
 }
 
 //-----------------------------------------------------------------OMDB SEARCH---------------------------------------------------------//
+
 // Use of OMDB API to execute movie search case command
 var omdbFn = function (searchTerm) {
     if (process.argv[3] === undefined) {
@@ -223,10 +245,11 @@ var omdbFn = function (searchTerm) {
 }
 
 //------------------------------------------------DO WHAT I SAY--------------------------------------------------------//
+
 // function to execute 'do what it says' case command
 var dwisFn = function (searchTerm) {
     // We will read the existing random.txt file
-    fs.readFile("random.txt", "utf8", function(err, data) {
+    fs.readFile("random.txt", "utf8", function (err, data) {
         if (err) {
             return console.log(err);
         }
@@ -245,7 +268,7 @@ var dwisFn = function (searchTerm) {
 
 //Switch Case Function that defines what to execute according to liriCommand given
 //possible commands are limited to `spotify-this-song`, `concert-this`, `movie-this`, and `do-what-it-says`
-var switchFn = function(searchTerm, liriCommand) {
+var switchFn = function (searchTerm, liriCommand) {
     switch (liriCommand) {
         case "spotify-this-song":
             spotifyFn(searchTerm);
