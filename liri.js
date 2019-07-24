@@ -1,4 +1,4 @@
-//-----------------------------------GLOBAL VARIABLES--------------------------------//
+//---------------------------------------------------GLOBAL VARIABLES--------------------------------------------------------//
 
 // require files and variables to store key info
 
@@ -15,7 +15,6 @@ var options = {
 };
 var geocoder = NodeGeocoder(options);
 
-
 // Store all of the argument a user inputs into an array
 var procArr = process.argv;
 var liriCommand = process.argv[2];
@@ -23,17 +22,18 @@ var liriCommand = process.argv[2];
 // Movie or song variable is search term according to case
 var searchTerm = process.argv.slice(3).join(" ");
 
-//---------------------------------------GLOBAL FUNCTIONS-------------------------------//
+//--------------------------------------------------------GLOBAL FUNCTIONS-------------------------------------------------------------------//
 
 //---------------------------------------------------------SPOTIFY SEARCH-------------------------------------------------------------------//
+
 // Use of spotify API to execute spotify song search case command
-//If no song is provided then your program will default to "The Sign" by Ace of Base.
 var spotifyFn = function (searchTerm) {
-    // call to spotify website with a promise
-    // take the movie or song varriable and use it as the search parameter in the spotify API
+    //If no song is provided then your program will default to "The Sign" by Ace of Base.
     if (!procArr[3]) {
         searchTerm = "The Sign";
     }
+    // call to spotify website with a promise
+    // take the movie or song varriable and use it as the search parameter in the spotify API
     spotify.search({
             type: "track",
             query: searchTerm,
@@ -43,9 +43,10 @@ var spotifyFn = function (searchTerm) {
             if (error) {
                 return console.log('Error occurred: ' + error);
             }
-            var dataTra = data.tracks.items;
+            //consolidate location of information
+            var res = data.tracks.items;
             if (!procArr[3]) {
-                var artists = dataTra[2].artists.map(function (artist) {
+                var artists = res[2].artists.map(function (artist) {
                     return artist.name
                 });
                 console.log(`
@@ -58,20 +59,20 @@ var spotifyFn = function (searchTerm) {
           ===============================  Your Default Result  ==============================      
 
                 Artist: ${artists}
-                Song: ${dataTra[2].name}
-                Album: ${dataTra[2].album.name}
-                Link: ${dataTra[2].href}
+                Song: ${res[2].name}
+                Album: ${res[2].album.name}
+                Link: ${res[2].preview_url}
                 `)
             } else {
                 //create a for loop to loop over each result in the data array limited to 5 per search as per 3rd search parameter above
-                for (var i = 0; i < dataTra.length; i++) {
+                for (var i = 0; i < res.length; i++) {
                     //create a variable for each desired data retrieved from search (artist, album, song, link)
-                    var artists = dataTra[i].artists.map(function (artist) {
+                    var artists = res[i].artists.map(function (artist) {
                         return artist.name
                     });
-                    var album = dataTra[i].album.name;
-                    var song = dataTra[i].name;
-                    var link = dataTra[i].href;
+                    var album = res[i].album.name;
+                    var song = res[i].name;
+                    var link = res[i].preview_url;
 
                     // result will display Artist(s), song's name, A preview link of the song, and album that the song is from
                     console.log(`
@@ -93,7 +94,7 @@ var spotifyFn = function (searchTerm) {
         })
 }
 
-//------------------------------------------------BANDS IN TOWN SEARCH (USING GEOCODER FOR EXACT ADDRESS-------------------------------------------//
+//------------------------------------------------BANDS IN TOWN SEARCH (USING GEOCODER FOR EXACT ADDRESS)-------------------------------------------//
 // Use of Bands in Town API to execute Bands in Town Artist Events case command
 var bandsInTownFn = function (searchTerm) {
     var queryURL = "https://rest.bandsintown.com/artists/" + searchTerm + "/events?app_id=codingbootcamp"
@@ -224,7 +225,6 @@ var omdbFn = function (searchTerm) {
 //------------------------------------------------DO WHAT I SAY--------------------------------------------------------//
 // function to execute 'do what it says' case command
 var dwisFn = function (searchTerm) {
-
     // We will read the existing random.txt file
     fs.readFile("random.txt", "utf8", function(err, data) {
         if (err) {
@@ -235,10 +235,10 @@ var dwisFn = function (searchTerm) {
         console.log(data);
         liriCommand = data[0];
         searchTerm = data[1].slice(1, -1);
-
+        process.argv[3] = searchTerm;
+        console.log(searchTerm + liriCommand)
         switchFn(searchTerm, liriCommand);
     });
-
 }
 
 //------------------------------------------------LIRI COMMAND EXECUTION-----------------------------------------------//
@@ -261,4 +261,5 @@ var switchFn = function(searchTerm, liriCommand) {
             break
     }
 }
+
 switchFn(searchTerm, liriCommand);
