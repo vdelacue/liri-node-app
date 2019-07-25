@@ -112,6 +112,7 @@ var bandsInTownFn = function (searchTerm) {
                 lat: latitude,
                 lon: longitude
             }, function (err, res) {
+                
                 location = res[0].formattedAddress;
                 var musicData = `
 _¶¶¶¶_________________________¶¶_________________________________________________________
@@ -152,26 +153,12 @@ _________________DATE OF EVENT: ${date}
 _________________________________________________________________________________________
 `
                 console.log(musicData);
-                fs.appendFile("log.txt", musicData + divider, function(error) {
-                    if (error) throw error;
+                fs.appendFile("log.txt", musicData + divider, function(err) {
+                    if (err) throw err;
                 });
             })
         }).catch(function (error) {
             if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
-                console.log("---------------Data---------------");
-                console.log(error.response.data);
-                console.log("---------------Status---------------");
-                console.log(error.response.status);
-                console.log("---------------Status---------------");
-                console.log(error.response.headers);
-            } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an object that comes back with details pertaining to the error that occurred.
-                console.log(error.request);
-            } else {
-                // Something happened in setting up the request that triggered an Error
                 console.log("Error", error.message);
             }
             console.log(error.config);
