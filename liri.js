@@ -8,17 +8,16 @@ var Spotify = require('node-spotify-api');
 var spotify = new Spotify(keys.spotify);
 var moment = require('moment');
 var axios = require("axios");
+var geocoder = NodeGeocoder(options);
 var NodeGeocoder = require("node-geocoder");
 var options = {
     provider: "mapquest",
     apiKey: "MHhIFdHLWLgQcoEpGVlEHZ97XX9cAt6I"
 };
-var geocoder = NodeGeocoder(options);
-var divider = "\n------------------------------------------------------------\n\n";
 //command line input variables for liri command and search term
 var liriCommand = process.argv[2];
 var searchTerm = process.argv.slice(3).join(" ");
-
+var divider = "\n------------------------------------------------------------\n\n";
 //--------------------------------------------------------GLOBAL FUNCTIONS-------------------------------------------------------------------//
 
 //---------------------------------------------------------SPOTIFY SEARCH-------------------------------------------------------------------//
