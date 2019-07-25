@@ -1,6 +1,6 @@
 //---------------------------------------------------GLOBAL VARIABLES--------------------------------------------------------//
 
-// require files and variables to store key info
+// required dependencies and variables to store necessary info including keys 
 require("dotenv").config();
 var fs = require("fs");
 var keys = require("./keys.js");
@@ -14,26 +14,22 @@ var options = {
     apiKey: "MHhIFdHLWLgQcoEpGVlEHZ97XX9cAt6I"
 };
 var geocoder = NodeGeocoder(options);
-
-// Store all of the argument a user inputs into an array
-var procArr = process.argv;
+var divider = "\n------------------------------------------------------------\n\n";
+//command line input variables for liri command and search term
 var liriCommand = process.argv[2];
-
-// Movie or song variable is search term according to case
 var searchTerm = process.argv.slice(3).join(" ");
 
 //--------------------------------------------------------GLOBAL FUNCTIONS-------------------------------------------------------------------//
 
 //---------------------------------------------------------SPOTIFY SEARCH-------------------------------------------------------------------//
 
-// Use of spotify API to execute spotify song search case command
+// Use of spotify API to execute spotify song search
 var spotifyFn = function (searchTerm) {
     //If no song is provided then your program will default to "The Sign" by Ace of Base.
-    if (!procArr[3]) {
+    if (!process.argv[3]) {
         searchTerm = "The Sign";
     }
     // call to spotify website with a promise
-    // take the movie or song varriable and use it as the search parameter in the spotify API
     spotify.search({
             type: "track",
             query: searchTerm,
@@ -43,15 +39,13 @@ var spotifyFn = function (searchTerm) {
             if (error) {
                 return console.log('Error occurred: ' + error);
             }
-            //consolidate location of information
             var res = data.tracks.items;
-
             //Default result if no song is given, The sign by ace of base
-            if (!procArr[3]) {
+            if (!process.argv[3]) {
                 var artists = res[2].artists.map(function (artist) {
                     return artist.name
                 });
-                console.log(`
+                var songData = `
 
                                           █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█
                                           █░░╦─╦╔╗╦─╔╗╔╗╔╦╗╔╗░░█
@@ -64,7 +58,11 @@ var spotifyFn = function (searchTerm) {
                 Song: ${res[2].name}
                 Album: ${res[2].album.name}
                 Link: ${res[2].preview_url}
-                `)
+                `
+                fs.appendFile("log.txt", songData + divider, function (err) {
+                    if (err) throw err;
+                    console.log(songData);
+                });
             } else {
                 //create a for loop to loop over each result in the data array limited to 5 per search as per 3rd search parameter above
                 for (var i = 0; i < res.length; i++) {
@@ -72,12 +70,8 @@ var spotifyFn = function (searchTerm) {
                     var artists = res[i].artists.map(function (artist) {
                         return artist.name
                     });
-                    var album = res[i].album.name;
-                    var song = res[i].name;
-                    var link = res[i].preview_url;
-
-                    // result will display Artist(s), song's name, A preview link of the song, and album that the song is from
-                    console.log(`
+                    // store result for Artist(s), song's name, preview link for song, and album of song
+                    var songData = `
 
                                         █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█
                                         █░░╦─╦╔╗╦─╔╗╔╗╔╦╗╔╗░░█
@@ -87,10 +81,14 @@ var spotifyFn = function (searchTerm) {
           ===================================  Result ${i+1}  ================================      
 
                 Artist: ${artists}
-                Song: ${song}
-                Album: ${album}
-                Link: ${link}
-                `)
+                Song: ${res[i].name}
+                Album: ${res[i].album.name}
+                Link: ${res[i].preview_url}
+                `
+                    fs.appendFile("log.txt", songData + divider, function (err) {
+                        if (err) throw err;
+                        console.log(songData);
+                    });
                 }
             }
         })
@@ -103,16 +101,11 @@ var bandsInTownFn = function (searchTerm) {
     var queryURL = "https://rest.bandsintown.com/artists/" + searchTerm + "/events?app_id=codingbootcamp"
     axios.get(queryURL).then(
         function (response) {
-            
             var r = response.data[0];
-            //variables to take in date and make it into desired format
-            var date = moment(r.datetime);
-           
-
-            var venue = r.venue.name;
-
+            //use moment to manipulate date
+            var date = moment(r.datetime).format("MM/DD/YYYY");
             //To get address use reverse geocode and get longitude and latitude from bands in town response
-            // store longitude and latitude in variables
+            // store longitude and latitude in variables to use geocoder reverse lookup
             var longitude = r.venue.longitude;
             var latitude = r.venue.latitude;
             var location = " ";
@@ -121,7 +114,7 @@ var bandsInTownFn = function (searchTerm) {
                 lon: longitude
             }, function (err, res) {
                 location = res[0].formattedAddress;
-                console.log(`
+                var musicData = `
 
 _¶¶¶¶_________________________¶¶_________________________________________________________
 __¶¶¶¶¶_______________________¶¶_________________________________________________________
@@ -160,31 +153,33 @@ ________________________________________________________________________________
 _________________DATE OF EVENT: ${date}
 _________________________________________________________________________________________
 
-`)
+`
+                fs.appendFile("log.txt", musicData + divider, function (err) {
+                    if (err) throw err;
+                    console.log(musicData);
+                });
             })
         }).catch(function (error) {
-            if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
-                console.log("---------------Data---------------");
-                console.log(error.response.data);
-                console.log("---------------Status---------------");
-                console.log(error.response.status);
-                console.log("---------------Status---------------");
-                console.log(error.response.headers);
-            } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an object that comes back with details pertaining to the error that occurred.
-                console.log(error.request);
-            } else {
-                // Something happened in setting up the request that triggered an Error
-                console.log("Error", error.message);
-            }
-            console.log(error.config);
-        });
-        
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.log("---------------Data---------------");
+            console.log(error.response.data);
+            console.log("---------------Status---------------");
+            console.log(error.response.status);
+            console.log("---------------Status---------------");
+            console.log(error.response.headers);
+        } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an object that comes back with details pertaining to the error that occurred.
+            console.log(error.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log("Error", error.message);
+        }
+        console.log(error.config);
+    });
 }
-
 //-----------------------------------------------------------------OMDB SEARCH---------------------------------------------------------//
 
 // Use of OMDB API to execute movie search case command
@@ -197,8 +192,7 @@ var omdbFn = function (searchTerm) {
     axios.get(queryURL).then(
             function (response) {
                 var r = response.data;
-
-                console.log(`
+                var showData = `
     ☆ ∩∩ （ • •）☆
 ┏━∪∪━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ❝ ${searchTerm} Results。 ❞ ☆
@@ -220,7 +214,11 @@ var omdbFn = function (searchTerm) {
 
 ☆ Actors in the movie: ${r.Actors} 
 
-    `);
+    `;
+                console.log(showData);
+                fs.appendFile("log.txt", showData + divider, function (err) {
+                    if (err) throw err;
+                });
             })
         .catch(function (error) {
             if (error.response) {
@@ -243,7 +241,6 @@ var omdbFn = function (searchTerm) {
             console.log(error.config);
         });
 }
-
 //------------------------------------------------DO WHAT I SAY--------------------------------------------------------//
 
 // function to execute 'do what it says' case command
