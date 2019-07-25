@@ -115,13 +115,16 @@ The responses use text art for the results, below is an example of the code used
 ```js
 var bandsInTownFn = function (searchTerm) {
     var queryURL = "https://rest.bandsintown.com/artists/" + searchTerm + "/events?app_id=codingbootcamp"
+    
     axios.get(queryURL).then(
         function (response) {
+            
             var r = response.data[0];
             //use moment to manipulate date
             var date = moment(r.datetime).format("MM/DD/YYYY");
             //To get address use reverse geocode and get longitude and latitude from bands in town response
             // store longitude and latitude in variables to use geocoder reverse lookup
+            var venue = r.venue.name;
             var longitude = r.venue.longitude;
             var latitude = r.venue.latitude;
             var location = " ";
@@ -129,6 +132,7 @@ var bandsInTownFn = function (searchTerm) {
                 lat: latitude,
                 lon: longitude
             }, function (err, res) {
+                
                 location = res[0].formattedAddress;
                 var musicData = `
 _¶¶¶¶_________________________¶¶_________________________________________________________
@@ -161,38 +165,24 @@ ____________________¶¶¶¶¶¶________________________________________________
 _________________________________________________________________________________________
 _________________CONCERT RESULTS FOR: ${searchTerm}
 _________________________________________________________________________________________
-_________________VENUE NAME: ${r.venue.name}
+_________________VENUE NAME: ${venue}
 _________________________________________________________________________________________
 _________________VENUE LOCATION: ${location}
 _________________________________________________________________________________________
 _________________DATE OF EVENT: ${date}
 _________________________________________________________________________________________
 `
-console.log(musicData);
-                fs.appendFile("log.txt", musicData + divider, function (err) {
+                console.log(musicData);
+                fs.appendFile("log.txt", musicData + divider, function(err) {
                     if (err) throw err;
                 });
             })
         }).catch(function (error) {
-        if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.log("---------------Data---------------");
-            console.log(error.response.data);
-            console.log("---------------Status---------------");
-            console.log(error.response.status);
-            console.log("---------------Status---------------");
-            console.log(error.response.headers);
-        } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an object that comes back with details pertaining to the error that occurred.
-            console.log(error.request);
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log("Error", error.message);
-        }
-        console.log(error.config);
-    });
+            if (error.response) {
+                console.log("Error", error.message);
+            }
+            console.log(error.config);
+        });
 }
 ```
 # **GIF showing LIRI in use**

@@ -9,11 +9,9 @@ var spotify = new Spotify(keys.spotify);
 var moment = require('moment');
 var axios = require("axios");
 var NodeGeocoder = require("node-geocoder");
+var options = {provider: "mapquest",apiKey: "MHhIFdHLWLgQcoEpGVlEHZ97XX9cAt6I"};
 var geocoder = NodeGeocoder(options);
-var options = {
-    provider: "mapquest",
-    apiKey: "MHhIFdHLWLgQcoEpGVlEHZ97XX9cAt6I"
-};
+
 //command line input variables for liri command and search term
 var liriCommand = process.argv[2];
 var searchTerm = process.argv.slice(3).join(" ");
@@ -93,22 +91,19 @@ var spotifyFn = function (searchTerm) {
 }
 //------------------------------------------------BANDS IN TOWN SEARCH (USING GEOCODER FOR EXACT ADDRESS)-------------------------------------------//
 
-
 // Use of Bands in Town API to execute Bands in Town Artist Events case command
 var bandsInTownFn = function (searchTerm) {
     var queryURL = "https://rest.bandsintown.com/artists/" + searchTerm + "/events?app_id=codingbootcamp"
+
     axios.get(queryURL).then(
         function (response) {
-            
+
             var r = response.data[0];
-            //variables to take in date and make it into desired format
-            var date = moment(r.datetime);
-           
-
-            var venue = r.venue.name;
-
+            //use moment to manipulate date
+            var date = moment(r.datetime).format("MM/DD/YYYY");
             //To get address use reverse geocode and get longitude and latitude from bands in town response
-            // store longitude and latitude in variables
+            // store longitude and latitude in variables to use geocoder reverse lookup
+            var venue = r.venue.name;
             var longitude = r.venue.longitude;
             var latitude = r.venue.latitude;
             var location = " ";
@@ -116,9 +111,9 @@ var bandsInTownFn = function (searchTerm) {
                 lat: latitude,
                 lon: longitude
             }, function (err, res) {
-                location = res[0].formattedAddress;
-                console.log(`
 
+                location = res[0].formattedAddress;
+                var musicData = `
 _¶¶¶¶_________________________¶¶_________________________________________________________
 __¶¶¶¶¶_______________________¶¶_________________________________________________________
 __¶¶__¶¶_____________________¶¶¶¶________________________________________________________
@@ -149,118 +144,25 @@ ____________________¶¶¶¶¶¶________________________________________________
 _________________________________________________________________________________________
 _________________CONCERT RESULTS FOR: ${searchTerm}
 _________________________________________________________________________________________
-_________________VENUE NAME: ${r.venue.name}
+_________________VENUE NAME: ${venue}
 _________________________________________________________________________________________
 _________________VENUE LOCATION: ${location}
 _________________________________________________________________________________________
 _________________DATE OF EVENT: ${date}
 _________________________________________________________________________________________
-
-`)
+`
+                console.log(musicData);
+                fs.appendFile("log.txt", musicData + divider, function (err) {
+                    if (err) throw err;
+                });
             })
         }).catch(function (error) {
-            if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
-                console.log("---------------Data---------------");
-                console.log(error.response.data);
-                console.log("---------------Status---------------");
-                console.log(error.response.status);
-                console.log("---------------Status---------------");
-                console.log(error.response.headers);
-            } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an object that comes back with details pertaining to the error that occurred.
-                console.log(error.request);
-            } else {
-                // Something happened in setting up the request that triggered an Error
-                console.log("Error", error.message);
-            }
-            console.log(error.config);
-        });
-        
+        if (error.response) {
+            console.log("Error", error.message);
+        }
+        console.log(error.config);
+    });
 }
-
-
-
-
-
-
-
-
-
-
-// // Use of Bands in Town API to execute Bands in Town Artist Events case command
-// var bandsInTownFn = function (searchTerm) {
-//     var queryURL = "https://rest.bandsintown.com/artists/" + searchTerm + "/events?app_id=codingbootcamp"
-//     axios.get(queryURL).then(
-//         function (response) {
-//             var r = response.data[0];
-//             console.log(r)
-//             //use moment to manipulate date
-//             var date = moment(r.datetime).format("MM/DD/YYYY");
-//             //To get address use reverse geocode and get longitude and latitude from bands in town response
-//             // store longitude and latitude in variables to use geocoder reverse lookup
-//             var venue = r.venue.name;
-//             var longitude = r.venue.longitude;
-//             var latitude = r.venue.latitude;
-//             var location = " ";
-//             geocoder.reverse({
-//                 lat: latitude,
-//                 lon: longitude
-//             }, function (err, res) {
-                
-//                 location = res[0].formattedAddress;
-//                 var musicData = `
-// _¶¶¶¶_________________________¶¶_________________________________________________________
-// __¶¶¶¶¶_______________________¶¶_________________________________________________________
-// __¶¶__¶¶_____________________¶¶¶¶________________________________________________________
-// ___¶¶__¶¶____________________¶¶¶¶¶_______________________________________________________
-// ____¶¶_¶¶¶___________________¶¶__¶¶______________________________________________________
-// ____¶¶_¶¶¶___________________¶¶__¶¶______________________________________________________
-// _____¶¶¶¶¶___________________¶¶_¶¶¶______________________________________________________
-// _____¶¶¶¶______________¶¶¶¶ ¶¶__¶¶_______________________________________________________
-// ____¶¶¶¶_____________¶¶¶¶¶¶¶¶¶_¶¶________________________________________________________
-// ___¶¶¶_¶¶__¶¶¶_______¶¶¶¶¶¶¶¶____________________________________________________________
-// __¶¶¶___¶¶¶¶¶¶¶¶¶_____¶¶¶¶¶¶_____________________________________________________________
-// _¶¶¶¶__¶¶¶¶___¶¶¶¶_______________________¶¶¶_____________________________________________
-// _¶¶¶__¶¶¶¶_¶¶¶__¶¶¶__________________¶¶¶¶¶¶______________________________________________
-// ¶¶¶¶__¶¶¶¶¶¶¶¶¶__¶¶¶______________¶¶¶¶¶¶¶¶¶______________________________________________
-// _¶¶¶__¶¶¶_¶¶__¶__¶¶¶___________¶¶¶¶¶¶¶___¶¶______________________________________________
-// _¶¶¶¶__¶¶¶¶¶¶¶¶__¶¶________¶¶¶¶¶¶¶¶______¶¶______________________________________________
-// __¶¶¶¶____¶¶¶__¶¶¶______¶¶¶¶¶¶¶¶¶¶_______¶¶______________________________________________
-// ___¶¶¶¶¶¶___¶¶¶¶¶_____¶¶¶¶¶¶¶¶___¶¶_______¶¶_____________________________________________
-// _____¶¶¶¶¶¶¶¶¶¶________¶¶¶¶¶_____¶¶___¶¶¶¶¶¶_____________________________________________
-// ________¶¶¶_¶¶¶________¶¶________¶¶__¶¶¶¶¶¶¶_____________________________________________
-// _______¶¶¶¶¶_¶¶_______¶¶¶_____¶¶¶¶___¶¶¶¶¶_______________________________________________
-// _______¶¶¶___¶¶_________¶¶___¶¶¶¶¶¶______________________________________________________
-// _________¶¶¶¶¶__________¶¶___¶¶¶¶¶¶______________________________________________________
-// _________________________¶¶__¶¶¶¶________________________________________________________
-// _____________________¶¶¶¶¶¶______________________________________________________________
-// ____________________¶¶¶¶¶¶¶______________________________________________________________
-// ____________________¶¶¶¶¶¶_______________________________________________________________
-// _________________________________________________________________________________________
-// _________________CONCERT RESULTS FOR: ${searchTerm}
-// _________________________________________________________________________________________
-// _________________VENUE NAME: ${venue}
-// _________________________________________________________________________________________
-// _________________VENUE LOCATION: ${location}
-// _________________________________________________________________________________________
-// _________________DATE OF EVENT: ${date}
-// _________________________________________________________________________________________
-// `
-//                 console.log(musicData);
-//                 fs.appendFile("log.txt", musicData + divider, function(err) {
-//                     if (err) throw err;
-//                 });
-//             })
-//         }).catch(function (error) {
-//             if (error.response) {
-//                 console.log("Error", error.message);
-//             }
-//             console.log(error.config);
-//         });
-// }
 //-----------------------------------------------------------------OMDB SEARCH---------------------------------------------------------//
 
 // Use of OMDB API to execute movie search case command
