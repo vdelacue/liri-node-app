@@ -265,4 +265,5 @@ var switchFn = function (searchTerm, liriCommand) {
             break
     }
 }
+
 switchFn(searchTerm, liriCommand);
