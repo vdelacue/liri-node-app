@@ -196,5 +196,7 @@ console.log(musicData);
 }
 ```
 # **GIF showing LIRI in use**
-
-![screen shot Image](assets/images/portfolioFullPage.png "Screen capture Image")
+> - `LIRI in use` 
+![GIF OF LIRI](assets/images/portfolioFullPage.png "LIRI GIF")
+> - `LIRI default behavior` 
+![GIF OF LIRI](assets/images/portfolioFullPage.png "LIRI GIF")

@@ -8,8 +8,8 @@ var Spotify = require('node-spotify-api');
 var spotify = new Spotify(keys.spotify);
 var moment = require('moment');
 var axios = require("axios");
-var geocoder = NodeGeocoder(options);
 var NodeGeocoder = require("node-geocoder");
+var geocoder = NodeGeocoder(options);
 var options = {
     provider: "mapquest",
     apiKey: "MHhIFdHLWLgQcoEpGVlEHZ97XX9cAt6I"
@@ -59,7 +59,7 @@ var spotifyFn = function (searchTerm) {
                 `
                 console.log(songDataDefault);
                 fs.appendFile("log.txt", songDataDefault + divider, function (err) {
-                    if (err) throw err; 
+                    if (err) throw err;
                 });
             } else {
                 //create a for loop to loop over each result in the data array limited to 5 per search as per 3rd search parameter above
@@ -83,7 +83,7 @@ var spotifyFn = function (searchTerm) {
                 Album: ${res[i].album.name}
                 Link: ${res[i].preview_url}
                 `
-                console.log(songData);
+                    console.log(songData);
                     fs.appendFile("log.txt", songData + divider, function (err) {
                         if (err) throw err;
                     });
@@ -99,10 +99,12 @@ var bandsInTownFn = function (searchTerm) {
     axios.get(queryURL).then(
         function (response) {
             var r = response.data[0];
+            console.log(r)
             //use moment to manipulate date
             var date = moment(r.datetime).format("MM/DD/YYYY");
             //To get address use reverse geocode and get longitude and latitude from bands in town response
             // store longitude and latitude in variables to use geocoder reverse lookup
+            var venue = r.venue.name;
             var longitude = r.venue.longitude;
             var latitude = r.venue.latitude;
             var location = " ";
@@ -142,38 +144,38 @@ ____________________¶¶¶¶¶¶________________________________________________
 _________________________________________________________________________________________
 _________________CONCERT RESULTS FOR: ${searchTerm}
 _________________________________________________________________________________________
-_________________VENUE NAME: ${r.venue.name}
+_________________VENUE NAME: ${venue}
 _________________________________________________________________________________________
 _________________VENUE LOCATION: ${location}
 _________________________________________________________________________________________
 _________________DATE OF EVENT: ${date}
 _________________________________________________________________________________________
 `
-console.log(musicData);
-                fs.appendFile("log.txt", musicData + divider, function (err) {
-                    if (err) throw err;
+                console.log(musicData);
+                fs.appendFile("log.txt", musicData + divider, function(error) {
+                    if (error) throw error;
                 });
             })
         }).catch(function (error) {
-        if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.log("---------------Data---------------");
-            console.log(error.response.data);
-            console.log("---------------Status---------------");
-            console.log(error.response.status);
-            console.log("---------------Status---------------");
-            console.log(error.response.headers);
-        } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an object that comes back with details pertaining to the error that occurred.
-            console.log(error.request);
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log("Error", error.message);
-        }
-        console.log(error.config);
-    });
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                console.log("---------------Data---------------");
+                console.log(error.response.data);
+                console.log("---------------Status---------------");
+                console.log(error.response.status);
+                console.log("---------------Status---------------");
+                console.log(error.response.headers);
+            } else if (error.request) {
+                // The request was made but no response was received
+                // `error.request` is an object that comes back with details pertaining to the error that occurred.
+                console.log(error.request);
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.log("Error", error.message);
+            }
+            console.log(error.config);
+        });
 }
 //-----------------------------------------------------------------OMDB SEARCH---------------------------------------------------------//
 
