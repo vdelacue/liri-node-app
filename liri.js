@@ -22,7 +22,6 @@ var searchTerm = process.argv.slice(3).join(" ");
 //--------------------------------------------------------GLOBAL FUNCTIONS-------------------------------------------------------------------//
 
 //---------------------------------------------------------SPOTIFY SEARCH-------------------------------------------------------------------//
-
 // Use of spotify API to execute spotify song search
 var spotifyFn = function (searchTerm) {
     //If no song is provided then your program will default to "The Sign" by Ace of Base.
@@ -45,7 +44,7 @@ var spotifyFn = function (searchTerm) {
                 var artists = res[2].artists.map(function (artist) {
                     return artist.name
                 });
-                var songData = `
+                var songDataDefault = `
 
                                           █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█
                                           █░░╦─╦╔╗╦─╔╗╔╗╔╦╗╔╗░░█
@@ -59,9 +58,9 @@ var spotifyFn = function (searchTerm) {
                 Album: ${res[2].album.name}
                 Link: ${res[2].preview_url}
                 `
-                fs.appendFile("log.txt", songData + divider, function (err) {
-                    if (err) throw err;
-                    console.log(songData);
+                console.log(songDataDefault);
+                fs.appendFile("log.txt", songDataDefault + divider, function (err) {
+                    if (err) throw err; 
                 });
             } else {
                 //create a for loop to loop over each result in the data array limited to 5 per search as per 3rd search parameter above
@@ -85,15 +84,14 @@ var spotifyFn = function (searchTerm) {
                 Album: ${res[i].album.name}
                 Link: ${res[i].preview_url}
                 `
+                console.log(songData);
                     fs.appendFile("log.txt", songData + divider, function (err) {
                         if (err) throw err;
-                        console.log(songData);
                     });
                 }
             }
         })
 }
-
 //------------------------------------------------BANDS IN TOWN SEARCH (USING GEOCODER FOR EXACT ADDRESS)-------------------------------------------//
 
 // Use of Bands in Town API to execute Bands in Town Artist Events case command
@@ -154,9 +152,9 @@ _________________DATE OF EVENT: ${date}
 _________________________________________________________________________________________
 
 `
+console.log(musicData);
                 fs.appendFile("log.txt", musicData + divider, function (err) {
                     if (err) throw err;
-                    console.log(musicData);
                 });
             })
         }).catch(function (error) {
@@ -281,5 +279,4 @@ var switchFn = function (searchTerm, liriCommand) {
             break
     }
 }
-
 switchFn(searchTerm, liriCommand);
