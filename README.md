@@ -2,7 +2,7 @@
 
 Liri is an imitation of Siri that uses Bands in Town API, Spotify API, and OMDB API. In the node runtime environment.
 
-Here is a direct link that shows the execution of Liri [Vanessa de La Cuetara's Portfolio](http://delacue.com/portfolio/)
+Here is a direct link that shows the execution of Liri [GIF Preview of LIRI](https://drive.google.com/file/d/15COErlLz3YgXYun-vKiOTf9ytZlV7cWm/view)
 
 ---
 
