@@ -140,6 +140,6 @@ ________________________________________________________________________________
 ```
 # **GIF showing LIRI in use**
 > - `LIRI in use` 
-![GIF OF LIRI](assets/images/portfolioFullPage.png "LIRI GIF")
+![GIF OF LIRI](liriHWGif.gif "LIRI GIF")
 > - `LIRI default behavior` 
-![GIF OF LIRI](assets/images/portfolioFullPage.png "LIRI GIF")
+![GIF OF LIRI](liriBOTdefault.gif "LIRI GIF")
